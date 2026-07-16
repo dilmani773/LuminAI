@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: luminai
+      POSTGRES_PASSWORD: luminai
+      POSTGRES_DB: luminai
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: ../backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://luminai:luminai@postgres:5432/luminai
+    depends_on:
+      - postgres
+    volumes:
+      - ../backend:/app
+
+volumes:
+  pgdata:
