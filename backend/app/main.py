@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
 from app import models  # noqa: F401 - needed so tables register on Base before create_all
-from app.routers import auth, mothers, phm
+from app.routers import auth, mothers, phm, appointments
 
 app = FastAPI(title="LuminAI API", version="0.1.0")
 
@@ -30,7 +30,8 @@ def health_check():
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(mothers.router, prefix="/mothers", tags=["mothers"])
 app.include_router(phm.router, prefix="/phm", tags=["phm"])
+app.include_router(appointments.router, prefix="/appointments", tags=["appointments"])
 
 # More routers get added here as they're built, e.g.:
-# from app.routers import doctors, appointments, reports
+# from app.routers import doctors, reports
 # app.include_router(doctors.router, prefix="/doctors", tags=["doctors"])
