@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     anthropic_api_key: str = ""
 
+    # File storage (local disk for the hackathon build - swap for S3/cloud storage before real deployment)
+    upload_dir: str = "/app/uploaded_files"
+
     class Config:
         env_file = ".env"
 
