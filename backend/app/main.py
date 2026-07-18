@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
 from app import models  # noqa: F401 - needed so tables register on Base before create_all
-from app.routers import auth, mothers, phm, appointments, reports, monitoring, symptom_logs, doctors, break_glass
+from app.routers import auth, mothers, phm, appointments, reports, monitoring, symptom_logs, doctors, break_glass, meal_plans, alerts
 
 app = FastAPI(title="LuminAI API", version="0.1.0")
 
@@ -36,7 +36,5 @@ app.include_router(monitoring.router, prefix="/monitoring", tags=["monitoring"])
 app.include_router(symptom_logs.router, prefix="/symptom-logs", tags=["symptom-logs"])
 app.include_router(doctors.router, prefix="/doctors", tags=["doctors"])
 app.include_router(break_glass.router, prefix="/break-glass", tags=["break-glass"])
-
-# More routers get added here as they're built, e.g.:
-# from app.routers import meal_plans, alerts
-# app.include_router(meal_plans.router, prefix="/meal-plans", tags=["meal-plans"])
+app.include_router(meal_plans.router, prefix="/meal-plans", tags=["meal-plans"])
+app.include_router(alerts.router, prefix="/alerts", tags=["alerts"])
