@@ -68,3 +68,7 @@ class MotherSummaryResponse(BaseModel):
     latest_report: ReportResponse | None = None
     latest_monitoring: MonitoringResponse | None = None
     open_alerts: list[AlertResponse] = []
+
+
+class DoctorAssignRequest(BaseModel):
+    doctor_id: UUID

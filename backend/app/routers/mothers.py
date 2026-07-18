@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import Mother, Report, ContinuousMonitoring, Alert
-from app.schemas.mother import MotherResponse, MotherUpdateRequest, MotherSummaryResponse
-from app.core.security import get_current_user, CurrentUser
+from app.models import Mother, Report, ContinuousMonitoring, Alert, Doctor
+from app.schemas.mother import MotherResponse, MotherUpdateRequest, MotherSummaryResponse, DoctorAssignRequest
+from app.core.security import get_current_user, require_role, CurrentUser
 
 router = APIRouter()
 
@@ -103,3 +103,30 @@ def get_mother_summary(mother_id: str, db: Session = Depends(get_db), user: Curr
         latest_monitoring=latest_monitoring,
         open_alerts=open_alerts,
     )
+
+
+@router.patch("/{mother_id}/assign-doctor", response_model=MotherResponse)
+def assign_doctor(
+    mother_id: str,
+    payload: DoctorAssignRequest,
+    db: Session = Depends(get_db),
+    user: CurrentUser = Depends(require_role("phm")),
+):
+    """
+    Only the managing PHM can assign or reassign a mother's doctor. This is
+    a deliberately separate, explicit action from the general profile edit
+    (PATCH /mothers/{id}) - a doctor reassignment is a bigger deal than a
+    casual field edit and worth its own clear audit trail.
+    """
+    mother = _get_mother_or_404(mother_id, db)
+    if str(mother.phm_id) != user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can only reassign doctors for mothers you manage")
+
+    doctor = db.query(Doctor).filter(Doctor.id == payload.doctor_id).first()
+    if not doctor:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Doctor not found")
+
+    mother.doctor_id = payload.doctor_id
+    db.commit()
+    db.refresh(mother)
+    return mother
